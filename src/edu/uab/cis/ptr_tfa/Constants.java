@@ -42,13 +42,13 @@ public class Constants {
 	//	k_1= 5d1bb11138a48b72c2283aab0db2e6b6d9fda81a20a15d63cbe92dc20e08ebc44122b90,54ff6d3404a27d601fd09573c39cd4d2a1d898843c7ec5f970d12cc16ef3d1aa9eddfcd //F_rwd(i) = Hash(i)^rwd
 	//	k_2= 5d1bb11138a48b72c2283aab0db2e6b6d9fda81a20a15d63cbe92dc20e08ebc44122b90,54ff6d3404a27d601fd09573c39cd4d2a1d898843c7ec5f970d12cc16ef3d1aa9eddfcd //F_rwd(i) = Hash(i)^rwd
 
-	public static String SERVERIP = "164.111.225.75";
+	public static String SERVERIP = "164.111.138.5";
 	public static int SERVERPORT = 25012;
-	public static String WEBSERVERIP = "164.111.225.75";
+	public static String WEBSERVERIP = "164.111.138.5";
 	public static int WEBSERVERPORT = 25006;
-	public static String CLIENTIP = "164.111.225.75";
+	public static String CLIENTIP = "164.111.138.5";
 	public static int CLIENTPORT = 25008;
-	public static String DEVICEIP = "127.0.0.1";
+	public static String DEVICEIP = "164.111.137.148";
 	public static int DEVICEPORT = 25010;
 	
 

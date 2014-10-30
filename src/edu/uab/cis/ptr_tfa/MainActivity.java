@@ -48,10 +48,7 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				
-		        OPRF();
-
-		        
+				thread.start(); 
 //				long startTime = 0;
 //				long endTime = 0;
 //				double averageTime = 0;
@@ -79,31 +76,18 @@ public class MainActivity extends Activity {
 //				Log.e ("timing", "membership checking takes " + averageTime + " milli second" );
 
 			}
+			
+			Thread thread = new Thread(new Runnable(){
+			    @Override
+			    public void run() {
+			        try {
+						 getAlpha_sendBeta();
+						} catch (Exception e) {
+			            e.printStackTrace();
+			        }
+			    }
+			});
 
-			public void OPRF() {
-				String challenge = new String();
-				try {
-					challenge = getAlpha();
-				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SocketException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		        try {
-					sendBeta(challenge.substring(4));
-				} catch (NoSuchAlgorithmException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		});	
 	}
 
@@ -115,38 +99,35 @@ public class MainActivity extends Activity {
 	}
 	
 	
-	public static String getAlpha() throws UnknownHostException,
+	public static void getAlpha_sendBeta() throws UnknownHostException,
 	SocketException, IOException {
 		byte[] receiveData = new byte[1024];
 		InetAddress deviceAddr = InetAddress.getByName(Constants.DEVICEIP);
 		DatagramSocket socket = new DatagramSocket(Constants.DEVICEPORT, deviceAddr);
 		
+		 System.out.println("Socket Created ");
+
 		//while(true) {
 		  DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 		  socket.receive(receivePacket);
-		  String challenge = new String(receivePacket.getData());
-		  System.out.println("Received Alpha: " + challenge);
-		  socket.close();
-		return challenge;
-	}
+		  String alpha = new String(receivePacket.getData()).trim();
+		  System.out.println("Received Alpha: " + alpha);
 
-	private static void sendBeta(String alpha) throws IOException, NoSuchAlgorithmException {	
-		ECCurve curve = getCurve(Constants.CURVE_NAME);
-		org.spongycastle.math.ec.ECPoint ecPoint = decodePoint(curve, alpha);
-//		if (pointMember(curve, ecPoint)) {
+		  ECCurve curve = getCurve(Constants.CURVE_NAME);
+		  org.spongycastle.math.ec.ECPoint ecPoint = decodePoint(curve, alpha);
+		  //		if (pointMember(curve, ecPoint)) {
 			String betaStr = multy(new BigInteger(Constants.OPRF_KEY, 16), ecPoint);
 			byte[] beta = betaStr.getBytes();
 		
-			DatagramSocket socket = new DatagramSocket();
-		    InetAddress clientIPAddress = InetAddress.getByName(Constants.CLIENTIP);	    
 		    
-		    DatagramPacket sendPacket = new DatagramPacket(beta, beta.length, clientIPAddress, Constants.CLIENTPORT);
+		    DatagramPacket sendPacket = new DatagramPacket(beta, beta.length, receivePacket.getAddress(), receivePacket.getPort());
 			socket.send(sendPacket);
-			System.out.println("Sent Beta");
+			System.out.println("Sent Beta, " + betaStr);
 			socket.close(); 
-//		} else  {
-//			System.out.println("point not on the curve");
-//		}
+			socket.disconnect();
+	//		} else  {
+	//			System.out.println("point not on the curve");
+	//		}
 	}
 	public static boolean pointMember(ECCurve curve, org.spongycastle.math.ec.ECPoint point) {
 		
@@ -179,7 +160,6 @@ public class MainActivity extends Activity {
 		org.spongycastle.math.ec.ECPoint multiplier = point.multiply(key);
 		return encodePoint(multiplier);
 	}
-	
 
 	
 	public static ECCurve getCurve(String curveName) {
